@@ -58,3 +58,15 @@ Ou use o `render.yaml`.
 - Produto alterado para seleção: Locator ou ADA.
 - Removidos da tela/modelo de importação os campos Responsável, Próxima Ação e Risco.
 - Importação CSV corrigida para aceitar UTF-8 e latin1/ANSI.
+
+
+## v2.0.2
+- Incluída coluna Situação na visão operacional.
+- Incluído botão Limpar filtro na visão operacional.
+- Logo OLOS reforçado no topo do painel.
+
+
+## v2.0.3
+- Correção definitiva da coluna Situação na visão operacional.
+- Correção definitiva da barra "Exibindo todos os projetos" com botão Limpar filtro.
+- Filtros dos cards operacionais passam a atualizar a descrição do filtro aplicado.

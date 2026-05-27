@@ -30,10 +30,61 @@ function editProject(p){
   document.getElementById('data_alvo_faturamento').value=toInputDate(p.data_alvo_faturamento);
 }
 
-function applyFilter(type,value){
+function applyFilter(type,value,label){
   document.querySelectorAll('.data-table tbody tr').forEach(row=>{
     row.style.display = row.dataset[type]===value ? '' : 'none';
   });
+  const status = document.getElementById('operationalFilterLabel');
+  if(status) status.textContent = label ? `Filtro aplicado: ${label}` : 'Filtro aplicado';
 }
-document.querySelectorAll('[data-filter-produto]').forEach(c=>c.onclick=()=>applyFilter('produto',c.dataset.filterProduto));
-document.querySelectorAll('[data-filter-etapa]').forEach(c=>c.onclick=()=>applyFilter('etapa',c.dataset.filterEtapa));
+function clearOperationalFilter(){
+  document.querySelectorAll('.data-table tbody tr').forEach(row=>row.style.display='');
+  const status = document.getElementById('operationalFilterLabel');
+  if(status) status.textContent = 'Exibindo todos os projetos';
+}
+document.querySelectorAll('[data-filter-produto]').forEach(c=>c.onclick=()=>applyFilter('produto',c.dataset.filterProduto,c.querySelector('span')?.innerText || c.dataset.filterProduto));
+document.querySelectorAll('[data-filter-etapa]').forEach(c=>c.onclick=()=>applyFilter('etapa',c.dataset.filterEtapa,c.querySelector('span')?.innerText || c.dataset.filterEtapa));
+const clearBtn = document.getElementById('clearOperationalFilter');
+if(clearBtn) clearBtn.onclick = clearOperationalFilter;
+
+
+// v2.0.3 - filtros operacionais com botão de limpar
+function setOperationalFilterLabel(text){
+  const label = document.getElementById('operationalFilterLabel');
+  if(label) label.textContent = text;
+}
+
+function applyOperationalFilter(type, value, labelText){
+  document.querySelectorAll('.data-table tbody tr').forEach(row => {
+    row.style.display = row.dataset[type] === value ? '' : 'none';
+  });
+  setOperationalFilterLabel('Filtro aplicado: ' + (labelText || value));
+}
+
+function clearOperationalFilter(){
+  document.querySelectorAll('.data-table tbody tr').forEach(row => {
+    row.style.display = '';
+  });
+  setOperationalFilterLabel('Exibindo todos os projetos');
+}
+
+document.querySelectorAll('[data-filter-produto]').forEach(card => {
+  card.onclick = () => applyOperationalFilter(
+    'produto',
+    card.dataset.filterProduto,
+    card.querySelector('span') ? card.querySelector('span').innerText : card.dataset.filterProduto
+  );
+});
+
+document.querySelectorAll('[data-filter-etapa]').forEach(card => {
+  card.onclick = () => applyOperationalFilter(
+    'etapa',
+    card.dataset.filterEtapa,
+    card.querySelector('span') ? card.querySelector('span').innerText : card.dataset.filterEtapa
+  );
+});
+
+const clearOperationalButton = document.getElementById('clearOperationalFilter');
+if(clearOperationalButton){
+  clearOperationalButton.onclick = clearOperationalFilter;
+}
