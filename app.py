@@ -347,7 +347,11 @@ def importar():
 
     filename = file.filename.lower()
     if filename.endswith(".csv"):
-        df = pd.read_csv(file, sep=None, engine="python")
+        try:
+            df = pd.read_csv(file, sep=None, engine="python", encoding="utf-8-sig")
+        except UnicodeDecodeError:
+            file.seek(0)
+            df = pd.read_csv(file, sep=None, engine="python", encoding="latin1")
     else:
         df = pd.read_excel(file, engine="openpyxl")
 
