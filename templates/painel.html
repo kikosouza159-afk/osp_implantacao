@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Painel Implantação v2.0</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+<main class="page">
+  <header class="topbar">
+    <div class="user-pill">Usuário <b>{{ usuario }}</b> <span>{{ perfil }}</span></div>
+    <a href="{{ url_for('logout') }}" class="btn ghost">Sair</a>
+    <a href="{{ url_for('baixar_modelo') }}" class="btn ghost">Baixar Modelo</a>
+    <form action="{{ url_for('importar') }}" method="post" enctype="multipart/form-data" class="import-form">
+      <input type="file" id="arquivo" name="arquivo" accept=".xlsx,.xls,.csv" hidden onchange="this.form.submit()">
+      <label for="arquivo" class="btn ghost">Importar Excel/CSV</label>
+    </form>
+    <a href="{{ url_for('exportar_csv') }}" class="btn ghost">Exportar CSV</a>
+    <button class="btn primary" onclick="openModal()">+ Novo projeto</button>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <section class="hero">
+    <div>
+      <h1>Status Semanal <span>de Implantação</span></h1>
+      <p>Resumo executivo do portfólio ADA, AD & Locator</p>
+    </div>
+    <div class="stamp"><span>Atualização</span><strong>{{ indicators.data_atualizacao }}</strong></div>
+  </section>
+
+  <nav class="tabs">
+    <button class="tab active" data-view="executivo">📊 Status Report</button>
+    <button class="tab" data-view="operacional">⚙️ Visão Operacional</button>
+  </nav>
+
+  <section id="executivo" class="view active">
+    <div class="status-grid">
+      <aside>
+        <div class="box">
+          <h2 class="orange">Status do Projeto</h2>
+          <ul>
+            <li>✅ Total de projetos: <b>{{ indicators.total }}</b></li>
+            <li>📍 Locator: <b>{{ indicators.total_locator }}</b></li>
+            <li>🧠 ADA: <b>{{ indicators.total_ada }}</b></li>
+            <li>⚗️ Em POC: <b>{{ indicators.total_poc }}</b></li>
+            <li>🧪 Homologação: <b>{{ indicators.total_homologacao }}</b></li>
+          </ul>
+        </div>
+        <div class="box">
+          <h2 class="red">Riscos / Alertas</h2>
+          <ul>
+            {% if riscos %}
+              {% for p in riscos %}
+              <li>• {{ p.cliente }} - {{ p.risco }}</li>
+              {% endfor %}
+            {% else %}
+              <li>• Sem riscos críticos cadastrados.</li>
+            {% endif %}
+          </ul>
+        </div>
+      </aside>
+
+      <section>
+        <div class="box">
+          <h2 class="blue">Principais Entregas da Semana</h2>
+          <ul>
+            <li>• Atualização do status dos projetos ativos.</li>
+            <li>• Acompanhamento de POCs, homologações e implantação.</li>
+            <li>• Priorização por data alvo de faturamento.</li>
+            <li>• Consolidação executiva para tomada de decisão.</li>
+          </ul>
+        </div>
+        <div class="result-cards">
+          <article><span>Total</span><strong>{{ indicators.total }}</strong></article>
+          <article><span>POC</span><strong>{{ indicators.total_poc }}</strong></article>
+          <article><span>Implantando</span><strong>{{ indicators.total_implantando }}</strong></article>
+          <article><span>Risco</span><strong>{{ indicators.total_risco }}</strong></article>
+        </div>
+      </section>
+
+      <aside>
+        <div class="box">
+          <h2 class="blue">Funil de Implantação</h2>
+          <table class="mini">
+            <tr><th>Etapa</th><th>Qtd</th></tr>
+            <tr><td>Mapeamento / Desenvolvimento</td><td>{{ indicators.total_outros }}</td></tr>
+            <tr><td>POC</td><td>{{ indicators.total_poc }}</td></tr>
+            <tr><td>Homologação</td><td>{{ indicators.total_homologacao }}</td></tr>
+            <tr><td>Implantando</td><td>{{ indicators.total_implantando }}</td></tr>
+          </table>
+        </div>
+        <div class="box">
+          <h2 class="red">Próximos Passos</h2>
+          <ul>
+            <li>• Validar POCs próximas do prazo final.</li>
+            <li>• Atualizar responsáveis e próximas ações.</li>
+            <li>• Priorizar homologações para faturamento.</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+
+    <button class="shortcut" data-view-target="operacional">Abrir visão operacional</button>
+  </section>
+
+  <section id="operacional" class="view">
+    <section class="cards">
+      <article class="card" data-filter-produto="locator"><span>Projetos Locator</span><strong>{{ indicators.total_locator }}</strong></article>
+      <article class="card orange" data-filter-produto="ada"><span>Projetos ADA</span><strong>{{ indicators.total_ada }}</strong></article>
+      <article class="card" data-filter-etapa="poc"><span>Em POC</span><strong>{{ indicators.total_poc }}</strong></article>
+      <article class="card" data-filter-etapa="implantando"><span>Implantando</span><strong>{{ indicators.total_implantando }}</strong></article>
+      <article class="card" data-filter-etapa="homologacao"><span>Homologação</span><strong>{{ indicators.total_homologacao }}</strong></article>
+      <article class="card orange" data-filter-etapa="outros"><span>Outros</span><strong>{{ indicators.total_outros }}</strong></article>
+    </section>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th><th>Produto</th><th>ORG</th><th>Cliente</th><th>Carteira</th><th>Etapa</th>
+          <th>Início POC</th><th>Prazo POC</th><th>Data Alvo</th><th>Risco</th><th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in projetos %}
+        <tr data-produto="{{ p.produto_grupo }}" data-etapa="{{ p.grupo_etapa }}">
+          <td>{{ p.id }}</td>
+          <td>{{ p.produto }}</td>
+          <td>{{ p.org or '' }}</td>
+          <td>{{ p.cliente }}</td>
+          <td>{{ p.carteira }}</td>
+          <td>{{ p.etapa_atual }}</td>
+          <td>{{ p.inicio_poc.strftime('%d/%m/%Y') if p.inicio_poc else '(vazio)' }}</td>
+          <td>{{ p.prazo_final_poc.strftime('%d/%m/%Y') if p.prazo_final_poc else '(vazio)' }}</td>
+          <td>{{ p.data_alvo_faturamento.strftime('%d/%m/%Y') if p.data_alvo_faturamento else '(vazio)' }}</td>
+          <td>{{ p.risco or '-' }}</td>
+          <td>
+            <button class="link" onclick='editProject({{ p.to_dict()|tojson }})'>Editar</button>
+            <form action="{{ url_for('excluir_projeto', project_id=p.id) }}" method="post" class="inline" onsubmit="return confirm('Excluir projeto?')">
+              <button class="link danger">Excluir</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<div class="modal" id="projectModal">
+  <form class="modal-card" method="post" id="projectForm" action="{{ url_for('novo_projeto') }}">
+    <button type="button" class="close" onclick="closeModal()">×</button>
+    <h2 id="modalTitle">Novo Projeto</h2>
+    <div class="form-grid">
+      <label>Produto<input name="produto" id="produto" placeholder="1.LOCATOR ou 2.ADA" required></label>
+      <label>Projeto<input name="projeto" id="projeto" value="SIM"></label>
+      <label>ORG<input name="org" id="org" type="number"></label>
+      <label>Cliente<input name="cliente" id="cliente" required></label>
+      <label>Carteira<input name="carteira" id="carteira"></label>
+      <label>Etapa Atual<input name="etapa_atual" id="etapa_atual"></label>
+      <label>Início POC<input name="inicio_poc" id="inicio_poc" type="date"></label>
+      <label>Prazo Final POC<input name="prazo_final_poc" id="prazo_final_poc" type="date"></label>
+      <label>Data Alvo<input name="data_alvo_faturamento" id="data_alvo_faturamento" type="date"></label>
+      <label>Responsável<input name="responsavel" id="responsavel"></label>
+      <label>Risco<select name="risco" id="risco"><option></option><option>Baixo</option><option>Médio</option><option>Alto</option><option>Crítico</option></select></label>
+      <label>Situação<textarea name="situacao" id="situacao"></textarea></label>
+      <label class="full">Próxima Ação<textarea name="proxima_acao" id="proxima_acao"></textarea></label>
+    </div>
+    <button class="btn primary full-btn">Salvar projeto</button>
+  </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

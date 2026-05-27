@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Login - Painel Implantação</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="login-body">
+<form class="login-card" method="post">
+  <h1>Painel Implantação</h1>
+  <p>Acesso administrativo</p>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+  <label>Usuário</label>
+  <input name="usuario" required>
+  <label>Senha</label>
+  <input name="senha" type="password" required>
+  <button>Entrar</button>
+</form>
+</body>
+</html>
