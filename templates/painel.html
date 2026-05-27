@@ -137,7 +137,13 @@
           <td>{{ p.inicio_poc.strftime('%d/%m/%Y') if p.inicio_poc else '(vazio)' }}</td>
           <td>{{ p.prazo_final_poc.strftime('%d/%m/%Y') if p.prazo_final_poc else '(vazio)' }}</td>
           <td>{{ p.data_alvo_faturamento.strftime('%d/%m/%Y') if p.data_alvo_faturamento else '(vazio)' }}</td>
-          <td>{{ p.situacao or '-' }}</td>
+          <td>
+            {% if p.situacao and 'POC Encerrada Aguardando Validação' in p.situacao %}
+            <span class="star">★</span> {{ p.situacao }}
+            {% else %}
+            {{ p.situacao or '-' }}
+            {% endif %}
+          </td>
           <td>
             <button class="link" onclick='editProject({{ p.to_dict()|tojson }})'>Editar</button>
             <form action="{{ url_for('excluir_projeto', project_id=p.id) }}" method="post" class="inline" onsubmit="return confirm('Excluir projeto?')">
