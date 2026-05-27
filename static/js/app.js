@@ -22,7 +22,7 @@ function editProject(p){
   openModal();
   document.getElementById('modalTitle').innerText='Editar Projeto';
   document.getElementById('projectForm').action=`/projeto/${p.id}/editar`;
-  ['produto','projeto','org','cliente','carteira','etapa_atual','situacao','responsavel','proxima_acao','risco'].forEach(k=>{
+  ['produto','projeto','org','cliente','carteira','etapa_atual','situacao'].forEach(k=>{
     const el=document.getElementById(k); if(el) el.value=p[k]||'';
   });
   document.getElementById('inicio_poc').value=toInputDate(p.inicio_poc);

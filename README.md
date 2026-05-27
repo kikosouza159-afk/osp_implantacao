@@ -52,3 +52,9 @@ ADMIN_PASSWORD
 ```
 
 Ou use o `render.yaml`.
+
+
+## v2.0.1
+- Produto alterado para seleção: Locator ou ADA.
+- Removidos da tela/modelo de importação os campos Responsável, Próxima Ação e Risco.
+- Importação CSV corrigida para aceitar UTF-8 e latin1/ANSI.

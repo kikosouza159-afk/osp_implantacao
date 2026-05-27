@@ -54,13 +54,9 @@
         <div class="box">
           <h2 class="red">Riscos / Alertas</h2>
           <ul>
-            {% if riscos %}
-              {% for p in riscos %}
-              <li>• {{ p.cliente }} - {{ p.risco }}</li>
-              {% endfor %}
-            {% else %}
-              <li>• Sem riscos críticos cadastrados.</li>
-            {% endif %}
+            <li>• Projetos próximos da data alvo exigem acompanhamento diário.</li>
+            <li>• POCs aguardando validação podem impactar faturamento.</li>
+            <li>• Itens em mapeamento precisam de próxima ação definida.</li>
           </ul>
         </div>
       </aside>
@@ -79,7 +75,7 @@
           <article><span>Total</span><strong>{{ indicators.total }}</strong></article>
           <article><span>POC</span><strong>{{ indicators.total_poc }}</strong></article>
           <article><span>Implantando</span><strong>{{ indicators.total_implantando }}</strong></article>
-          <article><span>Risco</span><strong>{{ indicators.total_risco }}</strong></article>
+
         </div>
       </section>
 
@@ -122,7 +118,7 @@
       <thead>
         <tr>
           <th>ID</th><th>Produto</th><th>ORG</th><th>Cliente</th><th>Carteira</th><th>Etapa</th>
-          <th>Início POC</th><th>Prazo POC</th><th>Data Alvo</th><th>Risco</th><th>Ações</th>
+          <th>Início POC</th><th>Prazo POC</th><th>Data Alvo</th><th>Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -137,7 +133,6 @@
           <td>{{ p.inicio_poc.strftime('%d/%m/%Y') if p.inicio_poc else '(vazio)' }}</td>
           <td>{{ p.prazo_final_poc.strftime('%d/%m/%Y') if p.prazo_final_poc else '(vazio)' }}</td>
           <td>{{ p.data_alvo_faturamento.strftime('%d/%m/%Y') if p.data_alvo_faturamento else '(vazio)' }}</td>
-          <td>{{ p.risco or '-' }}</td>
           <td>
             <button class="link" onclick='editProject({{ p.to_dict()|tojson }})'>Editar</button>
             <form action="{{ url_for('excluir_projeto', project_id=p.id) }}" method="post" class="inline" onsubmit="return confirm('Excluir projeto?')">
@@ -156,7 +151,13 @@
     <button type="button" class="close" onclick="closeModal()">×</button>
     <h2 id="modalTitle">Novo Projeto</h2>
     <div class="form-grid">
-      <label>Produto<input name="produto" id="produto" placeholder="1.LOCATOR ou 2.ADA" required></label>
+      <label>Produto
+        <select name="produto" id="produto" required>
+          <option value="">Selecione</option>
+          <option value="1.LOCATOR">Locator</option>
+          <option value="2.ADA">ADA</option>
+        </select>
+      </label>
       <label>Projeto<input name="projeto" id="projeto" value="SIM"></label>
       <label>ORG<input name="org" id="org" type="number"></label>
       <label>Cliente<input name="cliente" id="cliente" required></label>
@@ -165,10 +166,7 @@
       <label>Início POC<input name="inicio_poc" id="inicio_poc" type="date"></label>
       <label>Prazo Final POC<input name="prazo_final_poc" id="prazo_final_poc" type="date"></label>
       <label>Data Alvo<input name="data_alvo_faturamento" id="data_alvo_faturamento" type="date"></label>
-      <label>Responsável<input name="responsavel" id="responsavel"></label>
-      <label>Risco<select name="risco" id="risco"><option></option><option>Baixo</option><option>Médio</option><option>Alto</option><option>Crítico</option></select></label>
-      <label>Situação<textarea name="situacao" id="situacao"></textarea></label>
-      <label class="full">Próxima Ação<textarea name="proxima_acao" id="proxima_acao"></textarea></label>
+      <label class="full">Situação<textarea name="situacao" id="situacao"></textarea></label>
     </div>
     <button class="btn primary full-btn">Salvar projeto</button>
   </form>

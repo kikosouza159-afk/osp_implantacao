@@ -159,11 +159,6 @@ def normalize_columns(df):
         "DATA ALVO (FATURAMENTO)": "data_alvo_faturamento",
         "SITUAÇÃO": "situacao",
         "SITUACAO": "situacao",
-        "RESPONSAVEL": "responsavel",
-        "RESPONSÁVEL": "responsavel",
-        "PROXIMA ACAO": "proxima_acao",
-        "PRÓXIMA AÇÃO": "proxima_acao",
-        "RISCO": "risco",
     }
 
     def clean(col):
