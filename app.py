@@ -21,7 +21,24 @@ load_dotenv(BASE_DIR / ".env")
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key")
 
-database_url = os.getenv("DATABASE_URL", "sqlite:///implantacao.db")
+# ============================================================
+# BANCO DE DADOS
+# ============================================================
+# Em produção no Render, use obrigatoriamente DATABASE_URL apontando para
+# PostgreSQL. Se DATABASE_URL não existir no Render, o app NÃO deve cair em
+# SQLite, porque SQLite no Render é efêmero e perde os dados a cada deploy.
+database_url = os.getenv("DATABASE_URL")
+
+if not database_url:
+    local_dev = os.getenv("LOCAL_DEV", "0").strip().lower() in {"1", "true", "sim", "yes"}
+    if local_dev:
+        database_url = "sqlite:///implantacao.db"
+    else:
+        raise RuntimeError(
+            "DATABASE_URL não configurada. No Render, configure DATABASE_URL "
+            "com a Internal Database URL do PostgreSQL para manter os dados após deploy."
+        )
+
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 
@@ -240,6 +257,21 @@ def home():
     if gate:
         return gate
     return render_template("painel.html", **build_context(), usuario=session.get("usuario", "GERBER"), perfil=session.get("perfil", "ADMIN"))
+
+@app.route("/db-status")
+def db_status():
+    gate = admin_required()
+    if gate:
+        return gate
+
+    uri = app.config.get("SQLALCHEMY_DATABASE_URI", "")
+    tipo = "PostgreSQL" if uri.startswith("postgresql://") else "SQLite/local"
+    return {
+        "tipo_banco": tipo,
+        "total_projetos": Projeto.query.count(),
+        "persistente_render": tipo == "PostgreSQL",
+    }
+
 
 
 @app.route("/projeto/novo", methods=["POST"])
